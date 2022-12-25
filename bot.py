@@ -13,7 +13,7 @@ intents.message_content = True
 bot = commands.Bot(command_prefix=CONFIG['prefix'], intents = intents) 
 
 exts = ['cogs.music', 'cogs.minor',]
-
+   
 # ------------------------------------------
 
 @bot.event
@@ -23,10 +23,6 @@ async def on_ready():
     print('Logged in as')
     print(bot.user.name)
     print('Have a nice day! ^w^') 
-
-@bot.command()
-async def help(ctx):
-    pass
 
 @bot.command()
 async def reload(ctx):

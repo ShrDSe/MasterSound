@@ -1,7 +1,21 @@
+import json
 
+'''
+You need a "keys.json" file like this:
+{
+    "youtube": "Your Google API key",
+    "discord": "Your Discord token"
+}
+...and Google secret file named "secret.json" 
+'''
+
+data = {}
+with open('DISK:\\Way_to_keys\\\\keys.json') as file:
+    data = json.load(file)
+    
 
 CONFIG = {
-    'token': 'your Discord bot token here', # delete before commit
+    'token': data["discord"], 
     'prefix': '.'
 }
 
@@ -15,5 +29,5 @@ FFMPEG_CONFIG = {
 }
 
 YOUTUBE_CONFIG = {
-    'api_key': 'your YouTube API key' # delete before commit
+    'api_key': data["youtube"] 
 }

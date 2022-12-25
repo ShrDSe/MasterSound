@@ -1,8 +1,7 @@
-import discord, asyncio,  config, os, random
+import discord, asyncio,  config, random
 import google_auth_oauthlib.flow, googleapiclient.errors, googleapiclient.discovery
 from youtube_dl import YoutubeDL
 from discord.ext import commands
-from requests import get
 import discord.utils
 
 # ------------------------------------------
@@ -15,8 +14,7 @@ scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
 api_service_name = "youtube"
 api_version = "v3"
-client_secrets_file = "secret.json"
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+client_secrets_file = "DISK:\\Way_to_keys\\\\secret.json"
 
 # -- some other features for YouTube API --
 
@@ -35,17 +33,19 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.url = ""
     
     def search(url):   # will take audio from first video from request
+        if str(url).startswith("https://www.youtube.com") or str(url).startswith("https://youtu.be"):
+            return url
+
         request = youtube.search().list(
             part="snippet",
             maxResults=1,
             q=url
         )
         return ("https://www.youtube.com/watch?v=" + request.execute()["items"][0]["id"]["videoId"])
-
+        
     @classmethod 
     async def from_url(cls, url, *, loop=None):
-        if not url.startswith("https://www.youtube.com/") or not url.startswith("https://youtu.be/"):
-            url = YTDLSource.search(url)
+        url = YTDLSource.search(url)
         loop = loop or asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: YDL_CONFIG.extract_info(url, download = False))
         if 'entries' in data:
@@ -71,11 +71,12 @@ class Music(commands.Cog):
     async def join(self, ctx):
         if ctx.author.voice is None:
             await ctx.send("You are not in voice channel, moron")
-        voice_channel = ctx.author.voice.channel
-        if ctx.voice_client is None:
-            await voice_channel.connect()
         else:
-            await ctx.voice_client.move_to(voice_channel)
+            voice_channel = ctx.author.voice.channel
+            if ctx.voice_client is None:
+                await voice_channel.connect()
+            else:
+                await ctx.voice_client.move_to(voice_channel)
 
 
 
@@ -100,18 +101,20 @@ class Music(commands.Cog):
 
 
 
-    def queue(self, ctx, voice_client):  # just a queue-logic 
+    def queue(self, ctx, voice_client):  # just a queue-logic  
+        # BUG: works strange. Sometimes even doesen't works. I really don't know why, but I need to fix it.
         if len(self.queue) >= 1:
             if self.queue[0].startswith("https://www.youtube.com/") or self.queue[0].startswith("https://youtu.be/"):
+                self.queue = self.queue[1:]
                 voice_client.play(discord.FFmpegPCMAudio(self.queue[0], **FFMPEG_CONFIG), 
                     after=lambda e: Music.queue(self, ctx, voice_client))
-                self.queue = self.queue[1:]
                 
-
+                
 
     @commands.command()
     async def shuffle(self, ctx):
         self.queue = random.shuffle(self.queue)
+        await ctx.send("Shuffled!")
 
 
 
@@ -131,17 +134,17 @@ class Music(commands.Cog):
     async def leave(self, ctx):
         voice_client = ctx.message.guild.voice_client
         if voice_client.is_connected():
-            await voice_client.disconnect()
+            voice_client.disconnect()
         else:
             await ctx.send()
-
+    
 
 
     @commands.command()
     async def pause(self, ctx):
         voice_client = ctx.message.guild.voice_client
         if voice_client.is_playing():
-            await voice_client.pause()
+            voice_client.pause()
         else:
             await ctx.send("I'm not playing, u bastard.")
         
@@ -151,7 +154,7 @@ class Music(commands.Cog):
     async def resume(self, ctx):
         voice_client = ctx.message.guild.voice_client
         if voice_client.is_paused():
-            await voice_client.resume()
+            voice_client.resume()
         else:
             await ctx.send("I'm not playing anything before. Use yt or vk command. Or take ur pills")
 
@@ -162,11 +165,11 @@ class Music(commands.Cog):
         self.queue = []
         voice_client = ctx.message.guild.voice_client
         if voice_client.is_playing():
-            await voice_client.stop()
+            voice_client.stop()
         else:
             await ctx.send("I'm not playing rn, don't u hear?")
 
+    
 # ------------------------------------------
-
 async def setup(bot):
     await bot.add_cog(Music(bot))
