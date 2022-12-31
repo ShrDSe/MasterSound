@@ -10,7 +10,7 @@ You need a "keys.json" file like this:
 '''
 
 data = {}
-with open('DISK:\\Way_to_keys\\\\keys.json') as file:
+with open('..\\keys.json') as file:
     data = json.load(file)
     
 
