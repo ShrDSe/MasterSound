@@ -61,7 +61,7 @@ class Music(commands.Cog):
     async def on_ready(self):
         print("Music cog is loaded Owu")
 
-    @commands.command()
+    @commands.command(name='join', help='To join bot in voice channel (will automaticaly join, if you use .yt command)', aliases=['j'])
     async def join(self, ctx):
         if ctx.author.voice is None:
             await ctx.send("You are not in voice channel, moron")
@@ -73,7 +73,7 @@ class Music(commands.Cog):
                 await ctx.voice_client.move_to(voice_channel)
 
 # -- func to play music from Youtube --
-    @commands.command(name='yt', help='To play song from YouTube', aliases=['youtube'])
+    @commands.command(name='yt', help='To play song from YouTube', aliases=['youtube, y'])
     async def yt(self, ctx, *, url):   
         if ctx.voice_client is None or ctx.voice_client != ctx.message.guild.voice_client:
             await Music.join(self, ctx)
@@ -99,25 +99,25 @@ class Music(commands.Cog):
             audio = self.queue.pop(0)
             Music.yt_play(self, ctx, audio, voice_client)
 
-    @commands.command()
+    @commands.command(name='shuffle', help='To shuffle your queue')
     async def shuffle(self, ctx):
         self.queue = random.shuffle(self.queue)
         await ctx.send("Shuffled!")
 
-    @commands.command()
+    @commands.command(name='skip', help='To skip track from queue', aliases=['s'])
     async def skip(self, ctx):
         voice_client = ctx.message.guild.voice_client
         if voice_client.is_playing():
             voice_client.stop()
             if len(self.queue) >= 0: 
-                del self.queue[0]
-                Music.yt_play(self, ctx, voice_client)
+                audio = self.queue.pop(0)
+                Music.yt_play(self, ctx, audio, voice_client)
                 await ctx.send("Skipping track...")
                 print("Skipping track...")
         else:
             await ctx.send("I'm not playing rn, don't u hear?")
 
-    @commands.command()
+    @commands.command(name='leave', help='To leave from voice channel')
     async def leave(self, ctx):
         voice_client = ctx.message.guild.voice_client
         if voice_client.is_connected():
@@ -125,7 +125,7 @@ class Music(commands.Cog):
         else:
             await ctx.send("Goodbye!")
 
-    @commands.command()
+    @commands.command(name='pause', help='To pause track')
     async def pause(self, ctx):
         voice_client = ctx.message.guild.voice_client
         if voice_client.is_playing():
@@ -134,7 +134,7 @@ class Music(commands.Cog):
         else:
             await ctx.send("I'm not playing rn, don't u hear?")
 
-    @commands.command()
+    @commands.command(name='resume', help='To resume track')
     async def resume(self, ctx):
         voice_client = ctx.message.guild.voice_client
         if voice_client.is_paused():
@@ -143,7 +143,7 @@ class Music(commands.Cog):
         else:
             await ctx.send("I'm not playing anything before. Use yt or vk command. Or take ur pills")
 
-    @commands.command()
+    @commands.command(name='stop', help='To stop playing and clear queue')
     async def stop(self, ctx):
         self.queue = []
         voice_client = ctx.message.guild.voice_client
