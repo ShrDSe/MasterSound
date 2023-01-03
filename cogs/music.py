@@ -1,4 +1,4 @@
-import discord, asyncio,  config, os, random
+import discord, asyncio,  config, random
 import google_auth_oauthlib.flow, googleapiclient.errors, googleapiclient.discovery
 from youtube_dl import YoutubeDL
 from discord.ext import commands

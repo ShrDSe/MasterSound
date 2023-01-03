@@ -12,7 +12,7 @@ intents = Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix=CONFIG['prefix'], intents = intents) 
 
-exts = ['cogs.music', 'cogs.minor',]
+exts = ['cogs.music',]
    
 # ------------------------------------------
 
